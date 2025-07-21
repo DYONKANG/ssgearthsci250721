@@ -10,7 +10,7 @@ font_path = "./font/NanumGothic-Regular.ttf"
 font_manager.fontManager.addfont(font_path)
 plt.rcParams['font.family'] = 'NanumGothic'
 
-st.title("CSV 파일 업로드 및 데이터 시각화")  # 페이지 제목
+st.title("CSV파일을 업로드하면, 수치형 컬럼 간 상관분석 결과를 보여드립니다.")  # 페이지 제목
 
 # CSV 파일 업로드 위젯
 uploaded_file = st.file_uploader("CSV 파일을 업로드하세요", type=["csv"])
