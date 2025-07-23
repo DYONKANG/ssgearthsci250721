@@ -46,7 +46,7 @@ st.markdown(
         padding: 0.2em 0.4em;
         border-radius: 0.2em;
       ">
-        <기후 변화 요인 탐색>
+        🌏지구 온도 변화 요인 탐색☀️
       </mark>
     </h1>
     """,
@@ -66,10 +66,11 @@ st.markdown(
 st.dataframe(df, height=235)
 
 # A. 각 열의 의미 설명 표 (원본 데이터 아래에 위치)
-st.markdown("###### ☞ 용어의 의미")
+st.markdown("###### ☞ 참고 자료")
+
 col_desc = pd.DataFrame({
     "용어": ["Temp", "TSI", "CO2", "CH4", "N2O", "CFC-11", "CFC-12"],
-    "설명": [
+    "정의": [
         "지표면 평균 온도 편차( anomaly, 단위: °C, 기준시점 평균과의 차이)",
         "총 태양복사량( Total Solar Irradiance, 단위: W/m² )",
         "대기 중 이산화탄소 농도 (단위: ppm)",
@@ -80,8 +81,9 @@ col_desc = pd.DataFrame({
     ]
 })
 
+with st.expander("각 열(용어) 설명 보기", expanded=False):
+    st.table(col_desc)
 
-st.table(col_desc)
 
 numeric_cols = df.select_dtypes(include=[np.number]).columns
 filtered_numeric_cols = [c for c in numeric_cols if c.lower() not in ['year', 'month']]
@@ -97,7 +99,7 @@ st.markdown(
 
 # 2. 시간에 따른 컬럼의 수치 변화 그래프 조회
 st.markdown(
-    "<h3 style='color:#000080;'>2. 시간에 따른 각 요소의 크기 변화 탐색</h3>",
+    "<h3 style='color:#000080;'>2. 시간에 따른 각 요소의 수치 변화 탐색</h3>",
     unsafe_allow_html=True
 )
 
@@ -139,7 +141,7 @@ if selected_col != "요소 선택":
     if selected_col.lower() == "temp":
         ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:+.2f}"))
 
-    ax.set_title(f"{selected_col}의 시간에 따른 변화")
+    ax.set_title(f"{selected_col}의 시간에 따른 수치 변화")
     fig.autofmt_xdate()
     st.pyplot(fig)
 else:
@@ -160,15 +162,15 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. 기온 변화 요인 분석
+# 3. 기온 변화에 영향 미치는 요인 분석
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown(
-    "<h3 style='color:#000080;'>3. 기온 변화에 영향 주는 요소 탐색</h3>",
+    "<h3 style='color:#000080;'>3. 지표면 온도 변화에 영향 미치는 요인 탐색</h3>",
     unsafe_allow_html=True
 )
 
 # 3-1. 상관관계 조회(기온 편차 ~ 요인 변화)
-st.markdown("#####   가. 상관관계(기온편차 ~ 요인변화) 그래프 조회")
+st.markdown("#####   가. 상관관계(온도편차 ~ 요인변화) 그래프 조회")
 
 factor_cols = ["TSI", "CO2", "CH4", "N2O", "CFC-11", "CFC-12"]
 
@@ -224,28 +226,68 @@ else:
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 # 3-2. 전체 상관관계 비교
-st.markdown("#####   나. 전체 상관관계 비교")
-
-# ▶ collapsed expander header 스타일 적용: 경계선 제거 + 더욱 연한 회색빛 남색 배경
-st.markdown(
-    """
-    <style>
-    div[data-testid="stExpander"] details:not([open]) > summary {
-        background-color: none !important;     /* 더 연한, 회색빛 남색 */
-        border: none !important;                  /* 모든 경계선 제거 */
-        border-block: none !important;            /* 상하 경계선 제거 */
-        box-shadow: none !important;              /* 그림자 제거 */
-        outline: none !important;                 /* 포커스 윤곽선 제거 */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-with st.expander("#### 펼쳐보세요", expanded=False):
+st.markdown("#####   나. 전체 상관계수 비교")
+with st.expander("#### 펼쳐보기", expanded=False):
     styled_corr = (
         corr.style
             .background_gradient(cmap='coolwarm', vmin=-1, vmax=1)
             .format("{:.2f}")
     )
     st.write(styled_corr)
+
+st.markdown(
+    """
+    <h6 style="
+        text-align: right;
+        color: #4a4a4a;
+        font-style: italic;
+        font-size: 90%;
+        font-weight: 365;
+    ">
+        ※ 상관계수: -1 ≤ r ≤ 1 (+1:완전한 양의 상관, 0은 무상관, -1:완전한 음의 상관)
+    </h6>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# 퀴즈
+
+st.markdown("###### Q1. Temp와 가장 강한 상관을 갖는 요인은?")
+
+col1, col2 = st.columns([2.39, 1])
+with col2:
+    with st.expander("정답 보기", expanded=False):
+        styled_corr = (
+            corr.style
+                .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
+                .format("{:.2f}")
+        )
+        st.markdown("###### 1위: CO2, 2위: N2O")
+    
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("###### Q2. TSI와 Temp 간의 상관계수는 타 요인에 비해 작다. 그 의미는?")
+col1, col2 = st.columns([0.39, 1])
+with col2:
+    with st.expander("정답 보기", expanded=False):
+        styled_corr = (
+            corr.style
+                .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
+                .format("{:.2f}")
+        )
+        st.markdown("###### 태양복사E 변화(자연적 요인)는 기온 변화의 주요 원인이 아니다!")
+
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("###### Q3. CO2와 N2O, CH4와 CFC-12 간의 상관계수가 크게 나타난다. 그 의미는?")
+col1, col2 = st.columns([1, 1])
+with col2:
+    with st.expander("정답 보기", expanded=False):
+        styled_corr = (
+            corr.style
+                .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
+                .format("{:.2f}")
+        )
+        st.markdown("###### 발생 원인/메커니즘 유사? ☞ 조사해보자!")
+
+
