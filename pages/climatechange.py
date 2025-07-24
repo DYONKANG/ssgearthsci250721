@@ -292,7 +292,7 @@ st.markdown("###### Q3. CO2와 N2O, CH4와 CFC-12 간의 상관계수가 크게 
 with st.form("q3_form"):
     col_input, col_btn, col_ans = st.columns([3, 1, 2])
     with col_input:
-        q3_answer = st.text_input("답 입력", key="q3_input")
+        q3_answer = st.text_input("정답 입력", key="q3_input")
     with col_btn:
         q3_submitted = st.form_submit_button("제출")
     with col_ans:
