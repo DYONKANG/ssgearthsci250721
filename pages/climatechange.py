@@ -276,7 +276,7 @@ with col2:
                 .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
                 .format("{:.2f}")
         )
-        st.markdown("###### 태양복사E 변화(자연적 요인)는 기온 변화의 주요 원인이 아니다!")
+        st.markdown("###### 태양복사량 변화(자연적 요인)는 기온 변화의 주요 원인이 아니다!")
 
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("###### Q3. CO2와 N2O, CH4와 CFC-12 간의 상관계수가 크게 나타난다. 그 의미는?")
@@ -288,6 +288,6 @@ with col2:
                 .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
                 .format("{:.2f}")
         )
-        st.markdown("###### 발생 원인/메커니즘 유사? ☞ 조사해보자!")
+        st.markdown("###### 각 요인의 발생 원인/메커니즘의 유사성? ☞ 탐구해보자!")
 
 
