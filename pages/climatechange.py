@@ -271,7 +271,7 @@ with st.form("q1_form"):
 st.markdown("<br>", unsafe_allow_html=True)
 
 
-st.markdown("###### Q2. TSI와 Temp 간의 상관계수는 타 요인에 비해 작다. 그 의미는?")
+st.markdown("###### Q2. TSI와 Temp 간의 상관계수는 (타 요인에 비해) 작다. 그 의미는?")
 with st.form("q2_form"):
     col_input, col_btn, col_ans = st.columns([3, 1, 2])
     with col_input:
@@ -281,7 +281,7 @@ with st.form("q2_form"):
     with col_ans:
         if q2_submitted:
             st.markdown(
-                "<span style='color:#0052cc;'> 태양복사량 변화(자연적 요인)는 기온 변화의 주요 원인이 아니다!</span>",
+                "<span style='color:#0052cc;'> 태양복사량 변화(자연적 요인)는 지구 온도 상승의 주요 원인이 아니다!</span>",
                 unsafe_allow_html=True
             )
 
@@ -298,7 +298,7 @@ with st.form("q3_form"):
     with col_ans:
         if q3_submitted:
             st.markdown(
-                "<span style='color:#0052cc;'> 각 요인의 발생 원인/메커니즘의 유사성? ☞ 탐구해보자!</span>",
+                "<span style='color:#0052cc;'> 각 요인의 발생 원인/메커니즘이 유사? ☞ 추가탐구 해보자!</span>",
                 unsafe_allow_html=True
             )
 
