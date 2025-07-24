@@ -288,7 +288,7 @@ with st.form("q2_form"):
 st.markdown("<br>", unsafe_allow_html=True)
 
 
-st.markdown("###### Q3. CO2와 N2O, CH4와 CFC-12 간의 상관계수가 크게 나타난다. 그 의미는?")
+st.markdown("###### Q3. CO2와 N2O, CH4와 CFC-12 간의 상관계수는 크게 나타난다. 그 의미는?")
 with st.form("q3_form"):
     col_input, col_btn, col_ans = st.columns([3, 1, 2])
     with col_input:
@@ -301,3 +301,5 @@ with st.form("q3_form"):
                 "<span style='color:#0052cc;'> 각 요인의 발생 원인/메커니즘의 유사성? ☞ 탐구해보자!</span>",
                 unsafe_allow_html=True
             )
+
+
