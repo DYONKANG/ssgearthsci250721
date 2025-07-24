@@ -255,39 +255,49 @@ st.markdown("<br>", unsafe_allow_html=True)
 # 퀴즈
 
 st.markdown("###### Q1. Temp와 가장 강한 상관을 갖는 요인은?")
+with st.form("q1_form"):
+    col_input, col_btn, col_ans = st.columns([3, 1, 2])
+    with col_input:
+        q1_answer = st.text_input("정답 입력", key="q1_input")
+    with col_btn:
+        q1_submitted = st.form_submit_button("제출")
+    with col_ans:
+        if q1_submitted:
+            st.markdown(
+                "<span style='color:#0052cc;'> 1위: CO2, 2위: N2O</span>",
+                unsafe_allow_html=True
+            )
 
-col1, col2 = st.columns([2.39, 1])
-with col2:
-    with st.expander("정답 보기", expanded=False):
-        styled_corr = (
-            corr.style
-                .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
-                .format("{:.2f}")
-        )
-        st.markdown("###### 1위: CO2, 2위: N2O")
-    
 st.markdown("<br>", unsafe_allow_html=True)
+
+
 st.markdown("###### Q2. TSI와 Temp 간의 상관계수는 타 요인에 비해 작다. 그 의미는?")
-col1, col2 = st.columns([0.39, 1])
-with col2:
-    with st.expander("정답 보기", expanded=False):
-        styled_corr = (
-            corr.style
-                .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
-                .format("{:.2f}")
-        )
-        st.markdown("###### 태양복사량 변화(자연적 요인)는 기온 변화의 주요 원인이 아니다!")
+with st.form("q2_form"):
+    col_input, col_btn, col_ans = st.columns([3, 1, 2])
+    with col_input:
+        q2_answer = st.text_input("정답 입력", key="q2_input")
+    with col_btn:
+        q2_submitted = st.form_submit_button("제출")
+    with col_ans:
+        if q2_submitted:
+            st.markdown(
+                "<span style='color:#0052cc;'> 태양복사량 변화(자연적 요인)는 기온 변화의 주요 원인이 아니다!</span>",
+                unsafe_allow_html=True
+            )
 
 st.markdown("<br>", unsafe_allow_html=True)
+
+
 st.markdown("###### Q3. CO2와 N2O, CH4와 CFC-12 간의 상관계수가 크게 나타난다. 그 의미는?")
-col1, col2 = st.columns([1, 1])
-with col2:
-    with st.expander("정답 보기", expanded=False):
-        styled_corr = (
-            corr.style
-                .background_gradient(cmap='coolwarm', vmin=-0.85, vmax=0.85)
-                .format("{:.2f}")
-        )
-        st.markdown("###### 각 요인의 발생 원인/메커니즘의 유사성? ☞ 탐구해보자!")
-
-
+with st.form("q3_form"):
+    col_input, col_btn, col_ans = st.columns([3, 1, 2])
+    with col_input:
+        q3_answer = st.text_input("답 입력", key="q3_input")
+    with col_btn:
+        q3_submitted = st.form_submit_button("제출")
+    with col_ans:
+        if q3_submitted:
+            st.markdown(
+                "<span style='color:#0052cc;'> 각 요인의 발생 원인/메커니즘의 유사성? ☞ 탐구해보자!</span>",
+                unsafe_allow_html=True
+            )
