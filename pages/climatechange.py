@@ -60,7 +60,7 @@ st.markdown(
 )
 
 st.markdown(
-    "<h3 style='color:#000080;'>1. 데이터 탐색</h3>",
+    "<h3 style='color:#000080;'>활동1. 데이터 탐색</h3>",
     unsafe_allow_html=True
 )
 st.dataframe(df, height=235)
@@ -99,7 +99,7 @@ st.markdown(
 
 # 2. 시간에 따른 컬럼의 수치 변화 그래프 조회
 st.markdown(
-    "<h3 style='color:#000080;'>2. 시간에 따른 각 요소의 수치 변화 탐색</h3>",
+    "<h3 style='color:#000080;'>활동2. 시간에 따른 각 요소의 수치 변화 탐색</h3>",
     unsafe_allow_html=True
 )
 
@@ -165,7 +165,7 @@ st.markdown(
 # 3. 기온 변화에 영향 미치는 요인 분석
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown(
-    "<h3 style='color:#000080;'>3. 지표면 온도 변화에 영향 미치는 요인 탐색</h3>",
+    "<h3 style='color:#000080;'>활동3. 지표면 온도 변화에 영향 미치는 요인 탐색</h3>",
     unsafe_allow_html=True
 )
 
