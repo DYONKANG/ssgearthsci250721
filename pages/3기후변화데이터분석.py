@@ -46,7 +46,7 @@ st.markdown(
         padding: 0.2em 0.4em;
         border-radius: 0.2em;
       ">
-        🌏기후 변화 요인 탐색☀️
+        🌏기후 변화 데이터 분석☀️
       </mark>
     </h1>
     """,
