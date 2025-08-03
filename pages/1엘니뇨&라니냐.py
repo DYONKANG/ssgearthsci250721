@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from PIL import Image
 import os
@@ -9,6 +10,7 @@ api_key = st.sidebar.text_input("API 키를 입력하세요", type="password")
 
 
 st.set_page_config(page_title="ENSO 시뮬레이터", layout="centered")
+
 
 # 타이틀
 st.markdown(
@@ -28,11 +30,24 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 넓은 줄 간격
+# 한 줄 띄우기
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+# 정상 남태평양 이미지 삽입
+img = Image.open("./data/normal.png")
+st.image(img, caption="남태평양의 대기와 해양(정상 상태)", width=580)
+
 st.markdown(
-    "<div style='height:85px'></div>",
+    """
+    <div style= font-size:18px; font-weight: 1000; margin-top: 10px;'>
+        😎 위의 그림을 통해 남태평양 대기와 해양의 특징을 파악해봅시다.
+    </div>
+    """,
     unsafe_allow_html=True
 )
+
+# 한 줄 띄우기
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # 무역풍 강도 조절
 wind_choice = st.selectbox("💨**무역풍 강도 변화**", ["선택", "강해짐", "약해짐"])
@@ -118,8 +133,23 @@ if wind_choice == "강해짐" and current_choice == "강해짐":
                             answer = response.choices[0].message.content
                             st.success("🤖 GPT의 답변:")
                             st.write(answer)
+                            st.session_state.chat_log.append({"질문": user_question, "답변": answer})
+                            st.session_state.chat_count += 1
+                            if st.session_state.chat_count >= 3:
+                                st.session_state.chat_ended = True
                         except Exception as e:
                             st.error(f"⚠️ 에러 발생:\n\n{e}")
+                    if st.session_state.chat_ended:
+                        st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
+
+                        import io
+                        buffer = io.StringIO()
+                        for i, entry in enumerate(st.session_state.chat_log):
+                            buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
+                        txt_data = buffer.getvalue().encode("utf-8")
+
+                        st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
+                        st.stop()  # GPT 입력창 숨기기
         else:
             st.warning("❗❗❗**다시 생각해보세요 🤔🤔🤔**")
 
@@ -158,7 +188,26 @@ if wind_choice == "강해짐" and current_choice == "강해짐":
                                 answer = response.choices[0].message.content
                                 st.success("🤖 GPT의 답변:")
                                 st.write(answer)
+
+                                # ✅ 대화 기록 저장
+                                st.session_state.chat_log.append({"질문": user_question, "답변": answer})
+                                st.session_state.chat_count += 1
+                                if st.session_state.chat_count >= 3:
+                                    st.session_state.chat_ended = True
+
                             except Exception as e:
                                 st.error(f"⚠️ 에러 발생:\n\n{e}")
+                    if st.session_state.chat_ended:
+                        st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
+
+                        import io
+                        buffer = io.StringIO()
+                        for i, entry in enumerate(st.session_state.chat_log):
+                            buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
+                        txt_data = buffer.getvalue().encode("utf-8")
+
+                        st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
+                        st.stop()  # GPT 입력창 숨기기
+                                                
             else:
                 st.warning("❗ 다시 생각해보세요^^")

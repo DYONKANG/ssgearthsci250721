@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.title("🎈SSG_EARTHSCI_2025🎈")
-st.write("Let's start developing!")
+
 
 st.header("헤더 예시")  # ② 헤더
 
