@@ -1,16 +1,22 @@
 import os
 import streamlit as st
 from PIL import Image
-import os
 import openai
+import streamlit as st
+import gspread
+from google.oauth2.service_account import Credentials
+import io
+import json
+import tempfile
+import json
 
-# --- 사이드바: API 키 입력 ---
-st.sidebar.title("🔐 OpenAI API")
-api_key = st.sidebar.text_input("API 키를 입력하세요", type="password")
+
+# --- 사이드바: API 키 & 시트키 업로드 & 학생정보 ---
+st.sidebar.title("🔐 설정 영역")
+api_key = st.sidebar.text_input("OpenAI API 키", type="password")
 
 
 st.set_page_config(page_title="ENSO 시뮬레이터", layout="centered")
-
 
 # 타이틀
 st.markdown(
@@ -23,7 +29,7 @@ st.markdown(
         padding: 0.2em 0.4em;
         border-radius: 0.2em;
       ">
-        🌏엘니뇨와 라니냐☀️
+        🌏엘니뇨와 라니냐☀
       </mark>
     </h1>
     """,
@@ -39,88 +45,126 @@ st.image(img, caption="남태평양의 대기와 해양(정상 상태)", width=5
 
 st.markdown(
     """
-    <div style= font-size:18px; font-weight: 1000; margin-top: 10px;'>
+    <div style='font-size:18px; font-weight: 1000; margin-top: 10px;'>
         😎 위의 그림을 통해 남태평양 대기와 해양의 특징을 파악해봅시다.
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# 한 줄 띄우기
-st.markdown("<br><br>", unsafe_allow_html=True)
+# --- 세션 초기화 ---
+if "is_correct" not in st.session_state:
+    st.session_state.is_correct = None
+if "chat_log" not in st.session_state:
+    st.session_state.chat_log = []
+if "chat_count" not in st.session_state:
+    st.session_state.chat_count = 0
+if "chat_ended" not in st.session_state:
+    st.session_state.chat_ended = False
 
-# 무역풍 강도 조절
-wind_choice = st.selectbox("💨**무역풍 강도 변화**", ["선택", "강해짐", "약해짐"])
 
+# 탐구 결과 입력 익스펜더
+if "is_correct" not in st.session_state:
+    st.session_state.is_correct = None
 
-# 2단계: 무역풍 선택 후 해류 선택 UI 노출
-if wind_choice in ["강해짐", "약해짐"]:
-    current_choice = st.selectbox("🌊**표층 해류 강도 변화**", ["선택", "강해짐", "약해짐"])
+with st.expander("🧪 탐구 결과 입력하기"):
+    st.markdown("#### 아래 질문에 답해보세요:")
 
+    ans1 = st.text_input("1) 남태평양에 영향을 주는, 대기 대순환에 의해 발생한 지상풍의 명칭은? (5글자)", key="q1")
+    ans2 = st.text_input("2) 서태평양을 향해 흐르는 표층 해류의 발생 원인은? (5글자)", key="q2")
+    ans3 = st.text_input("3) 평상 시 동태평양(페루 연안)은 서태평양(호주)에 비해 표층 수온이 낮다. 그 원인은? (2글자)", key="q3")
+    ans4 = st.text_input("4) 평상 시 동태평양(페루 연안)은 서태평양(호주)에 비해 강수량이 적다. 그 원인은? (3글자)", key="q4")
 
-    
-# 조건 충족 여부 확인
-if (wind_choice == "강해짐" and current_choice == "강해짐") or \
-   (wind_choice == "약해짐" and current_choice == "약해짐"):
-    
-    # 한 줄 띄우기
-    st.markdown("<br><br>", unsafe_allow_html=True)
-
-    # 2단계 결과 출력
-    if current_choice == "강해짐":
-        st.info(" **무역풍/표층해류 강화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
-    elif current_choice == "약해짐":
-        st.info(" **무역풍/표층해류 약화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
-
-    # 테이블 출력
-    # 항목과 옵션 정의
-    labels = ["용승", "표층 수온", "기온", "기압", "기후"]
-    default_options = ["선택", "증가", "감소"]
-    climate_options = ["선택", "더 건조해짐", "강수량 증가"] 
-
-    # 1행에 라벨, 2행에 selectbox 수평 배치
-    cols_label = st.columns(len(labels))
-    for i, col in enumerate(cols_label):
-        with col:
-            st.markdown(
-                f"<div style='background-color:#dbeafe; text-align:center; font-weight:bold; padding:10px;'>{labels[i]}</div>",
-                unsafe_allow_html=True
-            )
-
-    cols_select = st.columns(len(labels))
-    selections = {}
-
-    for i, col in enumerate(cols_select):
-        with col:
-            opt = climate_options if labels[i] == "기후" else default_options
-            # ✅ 단 한 번만 호출
-            selections[labels[i]] = st.selectbox(label="", options=opt, key=f"{wind_choice}_{current_choice}_{labels[i]}_sel")
-
-    # --- 결과 판별 로직 ---
-if wind_choice == "강해짐" and current_choice == "강해짐":
-    if all(v != "선택" for v in selections.values()):
+    if st.button("✅ 정답 확인", key="check_answers"):
         if (
-            selections["용승"] == "증가" and
-            selections["표층 수온"] == "감소" and
-            selections["기온"] == "감소" and
-            selections["기압"] == "증가" and
-            selections["기후"] == "더 건조해짐"
+            ans1.strip() == "남동무역풍" and
+            ans2.strip() == "남동무역풍" and
+            ans3.strip() == "용승" and
+            ans4.strip() == "고기압"
         ):
-            st.error("⚠️ **라니냐 발생 😱😱😱**")
+            st.session_state.is_correct = True
+        else:
+            st.session_state.is_correct = False
 
-            # 한 줄 띄우기
-            st.markdown("<br><br>", unsafe_allow_html=True)
 
-            # ✅ GPT 챗봇 노출
-            st.markdown("### 🦸‍♂️ 라니냐에 대해 GPT에게 질문해보세요!")
+if st.session_state.is_correct is True:
+    st.success("🎉 정답입니다! 이 창을 접고 다음 단계로 진행하세요.")
+
+    # 무역풍 강도 조절
+    st.markdown("#### 💨기후 변화로 인해 무역풍의 강도가 달라진다면?")
+    wind_choice = st.selectbox("💨**무역풍 강도 변화**", ["선택", "강해짐", "약해짐"])
+
+    # 2단계: 무역풍 선택 후 해류 선택 UI 노출
+    if wind_choice in ["강해짐", "약해짐"]:
+        current_choice = st.selectbox("🌊**표층 해류 강도 변화**", ["선택", "강해짐", "약해짐"])
+
+        # 조건 충족 여부 확인
+        if (wind_choice == "강해짐" and current_choice == "강해짐") or \
+            (wind_choice == "약해짐" and current_choice == "약해짐"):
+
+            # 2단계 결과 출력
+            if current_choice == "강해짐":
+                st.info(" **무역풍/표층해류 강화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
+            elif current_choice == "약해짐":
+                st.info(" **무역풍/표층해류 약화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
+
+            # 테이블 출력
+            labels = ["용승", "표층 수온", "기온", "기압", "기후"]
+            default_options = ["선택", "증가", "감소"]
+            climate_options = ["선택", "더 건조해짐", "강수량 증가"]
+
+            cols_label = st.columns(len(labels))
+            for i, col in enumerate(cols_label):
+                with col:
+                    st.markdown(
+                        f"<div style='background-color:#dbeafe; text-align:center; font-weight:bold; padding:10px;'>{labels[i]}</div>",
+                        unsafe_allow_html=True
+                    )
+
+            cols_select = st.columns(len(labels))
+            selections = {}
+
+            for i, col in enumerate(cols_select):
+                with col:
+                    opt = climate_options if labels[i] == "기후" else default_options
+                    selections[labels[i]] = st.selectbox(label="", options=opt, key=f"{wind_choice}_{current_choice}_{labels[i]}_sel")
+
+            # --- 결과 판별 로직 ---
+            if wind_choice == "강해짐" and current_choice == "강해짐":
+                expected = {"용승": "증가", "표층 수온": "감소", "기온": "감소", "기압": "증가", "기후": "더 건조해짐"}
+                match = all(selections[k] == v for k, v in expected.items())
+                if match:
+                    st.error("⚠ **라니냐 발생 😱😱😱**")
+                    lanina_img = Image.open("./data/lanina.png")
+                    st.image(lanina_img, caption="라니냐 발생 시 남태평양 해역 변화", width=700)
+                    st.markdown("### 🦸‍♂ 라니냐에 대해 GPT에게 질문해보세요!")
+
+            elif wind_choice == "약해짐" and current_choice == "약해짐":
+                expected = {"용승": "감소", "표층 수온": "증가", "기온": "증가", "기압": "감소", "기후": "강수량 증가"}
+                match = all(selections[k] == v for k, v in expected.items())
+                if match:
+                    st.error("⚠ 엘니뇨 발생!!!")
+                    elnino_img = Image.open("./data/elnino.png")
+                    st.image(elnino_img, caption="엘니뇨 발생 시 남태평양 해역 변화", width=700)
+                    st.markdown("### 🦸‍♂ 엘니뇨에 대해 GPT에게 질문해보세요!")
+            else:
+                st.warning("❗ 다시 생각해보세요.")
+
+
+            # GPT 챗봇 공통 블록 (3회 대화 종료 + txt 저장 포함)
             if api_key:
-                # 2. 질문 입력 (→ 여기서 user_question 정의됨)
-                user_question = st.text_input("💬 질문을 입력하세요:")
+                if st.session_state.chat_ended:
+                    st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
+                    buffer = io.StringIO()
+                    for i, entry in enumerate(st.session_state.chat_log):
+                        buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
+                    txt_data = buffer.getvalue().encode("utf-8")
+                    st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
+                    st.stop()
 
-                # 3. 질문이 입력되었을 때 GPT 호출
+                user_question = st.text_input("💬 질문을 입력하세요:")
                 if user_question:
                     client = openai.OpenAI(api_key=api_key)
-
                     with st.spinner("GPT가 생각 중입니다..."):
                         try:
                             response = client.chat.completions.create(
@@ -133,81 +177,13 @@ if wind_choice == "강해짐" and current_choice == "강해짐":
                             answer = response.choices[0].message.content
                             st.success("🤖 GPT의 답변:")
                             st.write(answer)
+
                             st.session_state.chat_log.append({"질문": user_question, "답변": answer})
                             st.session_state.chat_count += 1
                             if st.session_state.chat_count >= 3:
                                 st.session_state.chat_ended = True
+
                         except Exception as e:
-                            st.error(f"⚠️ 에러 발생:\n\n{e}")
-                    if st.session_state.chat_ended:
-                        st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
-
-                        import io
-                        buffer = io.StringIO()
-                        for i, entry in enumerate(st.session_state.chat_log):
-                            buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
-                        txt_data = buffer.getvalue().encode("utf-8")
-
-                        st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
-                        st.stop()  # GPT 입력창 숨기기
-        else:
-            st.warning("❗❗❗**다시 생각해보세요 🤔🤔🤔**")
-
-    elif wind_choice == "약해짐" and current_choice == "약해짐":
-        if all(v != "선택" for v in selections.values()):  # ✅ 모든 항목이 선택되었을 때만 판단
-            if (
-                selections["용승"] == "감소" and
-                selections["표층 수온"] == "증가" and
-                selections["기온"] == "증가" and
-                selections["기압"] == "감소" and
-                selections["기후"] == "강수량 증가"
-            ):
-                st.error("⚠️ 엘니뇨 발생!!!")
-                # 한 줄 띄우기
-                st.markdown("<br><br>", unsafe_allow_html=True)
-
-                # ✅ GPT 챗봇 노출
-                st.markdown("### 🦸‍♂️ 엘니뇨에 대해 GPT에게 질문해보세요!")
-                if api_key:
-                    # 2. 질문 입력 (→ 여기서 user_question 정의됨)
-                    user_question = st.text_input("💬 질문을 입력하세요:")
-
-                    # 3. 질문이 입력되었을 때 GPT 호출
-                    if user_question:
-                        client = openai.OpenAI(api_key=api_key)
-
-                        with st.spinner("GPT가 생각 중입니다..."):
-                            try:
-                                response = client.chat.completions.create(
-                                    model="gpt-3.5-turbo",
-                                    messages=[
-                                        {"role": "system", "content": "당신은 고등학생을 위한 기후 과학 설명 전문가입니다."},
-                                        {"role": "user", "content": user_question}
-                                    ]
-                                )
-                                answer = response.choices[0].message.content
-                                st.success("🤖 GPT의 답변:")
-                                st.write(answer)
-
-                                # ✅ 대화 기록 저장
-                                st.session_state.chat_log.append({"질문": user_question, "답변": answer})
-                                st.session_state.chat_count += 1
-                                if st.session_state.chat_count >= 3:
-                                    st.session_state.chat_ended = True
-
-                            except Exception as e:
-                                st.error(f"⚠️ 에러 발생:\n\n{e}")
-                    if st.session_state.chat_ended:
-                        st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
-
-                        import io
-                        buffer = io.StringIO()
-                        for i, entry in enumerate(st.session_state.chat_log):
-                            buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
-                        txt_data = buffer.getvalue().encode("utf-8")
-
-                        st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
-                        st.stop()  # GPT 입력창 숨기기
-                                                
-            else:
-                st.warning("❗ 다시 생각해보세요^^")
+                            st.error(f"⚠ 에러 발생:\n\n{e}")
+elif st.session_state.is_correct is False:
+    st.warning("다시 생각해보세요❗")
