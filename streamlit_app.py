@@ -2,7 +2,14 @@ import streamlit as st
 
 st.set_page_config(page_title="SSG_EARTHSCI_2025", layout="centered")
 
-st.title("🎈SSG_EARTHSCIENCE_2025🎈")
+# 타이틀
+st.markdown("""
+<h1 style="text-align: center;">
+  <mark style="background-color: #e6f2ff; color: #0052cc; font-weight: bold; padding: 0.2em 0.4em; border-radius: 0.2em;">
+    🌏기후 변화 탐구 수업 소개☀️
+  </mark>
+</h1>
+""", unsafe_allow_html=True)
 
 st.markdown(
     """
@@ -16,7 +23,7 @@ st.markdown(
 # 한 줄 띄우기
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-st.markdown("#### 🌎 기후 변화 수업 계획 및 차시별 내용 안내")
+
 
 # 전체 수업 계획 표
 st.markdown("#### 📌 전체 수업 계획")
@@ -55,6 +62,9 @@ st.markdown("""
   </tr>
 </table>
 """, unsafe_allow_html=True)
+
+# 한 줄 띄우기
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # 차시별 수업 내용 표
 st.markdown("#### 📌 차시별 수업 내용")
