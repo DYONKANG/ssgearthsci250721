@@ -35,12 +35,12 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 # 이미지
 img = Image.open("./data/normal.png")
-st.image(img, caption="남태평양의 대기와 해양(정상 상태)", width=580)
-st.info(" **[미션1] 위의 그림을 참고하여 남태평양 대기와 해양의 특징을 파악해봅시다.**")
+st.image(img, caption="남태평양의 대기와 해양(평상시)", width=580)
+st.info(" **🔷미션1🔷 위의 그림을 참고하여 남태평양 대기와 해양의 특징을 파악해봅시다.**")
 
 # 탐구 결과 입력
-with st.expander("🧪 탐구 결과 입력하기"):
-    st.markdown("#### 아래 질문에 답해보세요:")
+with st.expander("💬 탐구 결과 입력하기"):
+    st.markdown("##### 아래 질문에 답해보세요:")
     ans1 = st.text_input("1) 남태평양에 영향을 주는, 대기 대순환에 의해 발생한 지상풍의 명칭은? (5글자)", key="q1")
     ans2 = st.text_input("2) 서태평양을 향해 흐르는 표층 해류의 발생 원인은? (5글자)", key="q2")
     ans3 = st.text_input("3) 평상 시 동태평양(페루 연안)은 서태평양(호주)에 비해 표층 수온이 낮다. 그 원인은? (2글자)", key="q3")
@@ -55,13 +55,13 @@ with st.expander("🧪 탐구 결과 입력하기"):
 # 미션2
 if st.session_state.is_correct:
     st.success("🎉 정답입니다! **미션2**로 넘어가세요.")
-    st.info(" **[미션2] 기후 변화로 인해 무역풍의 강도가 달라지면?**")
+    st.info(" **🔷미션2-1🔷 기후 변화로 인해 무역풍의 강도가 달라지면?**")
     wind_choice = st.selectbox("💨무역풍 강도 변화", ["선택", "강해짐", "약해짐"])
     if wind_choice in ["강해짐", "약해짐"]:
         current_choice = st.selectbox("🌊표층 해류 강도 변화", ["선택", "강해짐", "약해짐"])
 
         if (wind_choice, current_choice) in [("강해짐", "강해짐"), ("약해짐", "약해짐")]:
-            st.info("**[미션2-2] 동태평양 페루연안의 연쇄적 변화 탐색**")
+            st.info("**🔷미션2-2🔷 동태평양 페루연안의 연쇄적 변화 탐색**")
             labels = ["용승", "표층 수온", "기온", "기압", "기후"]
             default_options = ["선택", "증가", "감소"]
             climate_options = ["선택", "더 건조해짐", "강수량 증가"]
@@ -82,17 +82,25 @@ if st.session_state.is_correct:
                 "약해짐": {"용승": "감소", "표층 수온": "증가", "기온": "증가", "기압": "감소", "기후": "강수량 증가"}
             }[wind_choice]
 
-            if all(selections[k] == v for k, v in expected.items()):
-                st.session_state.match = True
-                if wind_choice == "강해짐":
-                    st.error("⚠ 라니냐 발생!")
-                    st.image(Image.open("./data/lanina.png"), width=700)
+            if all(selections[k] != "선택" for k in expected.keys()):
+                
+                # 조건 2: 선택이 정답과 일치하는지 확인
+                if all(selections[k] == v for k, v in expected.items()):
+                    st.session_state.match = True
+                    if wind_choice == "강해짐":
+                        st.error("**⚠️ 라니냐 발생!**")
+                        st.image(Image.open("./data/lanina.png"), width=700)
+                    else:
+                        st.error("**⚠️ 엘니뇨 발생!**")
+                        st.image(Image.open("./data/elnino.png"), width=700)
+                    st.info("**🔷미션3🔷 엘니뇨/라니냐에 대해 GPT에게 질문해보세요!**")
                 else:
-                    st.error("⚠ 엘니뇨 발생!")
-                    st.image(Image.open("./data/elnino.png"), width=700)
-                st.info("**[미션3] 엘니뇨/라니냐에 대해 GPT에게 질문해보세요!**")
+                    st.session_state.match = False
+                    st.warning("❗ 다시 생각해보세요❗")
+
             else:
-                st.warning("❗ 다시 생각해보세요")
+                st.session_state.match = False
+
 
 # GPT 대화
 if api_key and st.session_state.match:
@@ -104,7 +112,7 @@ if api_key and st.session_state.match:
 - 라니냐 시기에 우리나라가 겪는 변화는?
 - 라니냐와 지구 온난화의 관련성은?
             """)
-        user_question = st.text_input("💬 질문을 입력하세요:")
+        user_question = st.text_input("💬 질문 입력하기")
         if user_question:
             client = openai.OpenAI(api_key=api_key)
             with st.spinner("GPT가 생각 중입니다..."):
@@ -126,7 +134,7 @@ if api_key and st.session_state.match:
                 except Exception as e:
                     st.error(f"⚠ 에러 발생:\n\n{e}")
     else:
-        st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
+        st.warning("✅ GPT와의 대화가 종료되었습니다😢")
         buffer = io.StringIO()
         for i, entry in enumerate(st.session_state.chat_log):
             buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
