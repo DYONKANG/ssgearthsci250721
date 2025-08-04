@@ -2,19 +2,15 @@ import os
 import streamlit as st
 from PIL import Image
 import openai
-import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 import io
 import json
 import tempfile
-import json
-
 
 # --- 사이드바: API 키 & 시트키 업로드 & 학생정보 ---
 st.sidebar.title("🔐 설정 영역")
 api_key = st.sidebar.text_input("OpenAI API 키", type="password")
-
 
 st.set_page_config(page_title="ENSO 시뮬레이터", layout="centered")
 
@@ -43,7 +39,6 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 img = Image.open("./data/normal.png")
 st.image(img, caption="남태평양의 대기와 해양(정상 상태)", width=580)
 
-
 # --- 세션 초기화 ---
 if "is_correct" not in st.session_state:
     st.session_state.is_correct = None
@@ -58,9 +53,6 @@ if "chat_ended" not in st.session_state:
 st.info(" **[미션1] 위의 그림을 참고하여 남태평양 대기와 해양의 특징을 파악해봅시다.**")
 
 # 탐구 결과 입력 익스펜더
-if "is_correct" not in st.session_state:
-    st.session_state.is_correct = None
-
 with st.expander("🧪 탐구 결과 입력하기"):
     st.markdown("#### 아래 질문에 답해보세요:")
 
@@ -80,12 +72,11 @@ with st.expander("🧪 탐구 결과 입력하기"):
         else:
             st.session_state.is_correct = False
 
-
 if st.session_state.is_correct is True:
-    st.success("🎉 정답입니다! 아래 미션으로 넘어가세요.")
+    st.success("🎉 정답입니다! **미션2**로 넘어가세요.")
 
     # 무역풍 강도 조절
-    st.markdown("#### 💨기후 변화로 인해 무역풍의 강도가 달라진다면?")
+    st.info("**[미션2-1] 기후 변화로 인해 무역풍의 강도가 달라진다면?**")
     wind_choice = st.selectbox("💨**무역풍 강도 변화**", ["선택", "강해짐", "약해짐"])
 
     # 2단계: 무역풍 선택 후 해류 선택 UI 노출
@@ -96,13 +87,11 @@ if st.session_state.is_correct is True:
         if (wind_choice == "강해짐" and current_choice == "강해짐") or \
             (wind_choice == "약해짐" and current_choice == "약해짐"):
 
-            # 2단계 결과 출력
             if current_choice == "강해짐":
-                st.info(" **[미션2] 무역풍/표층해류 강화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
+                st.info(" **[미션2-2] 무역풍/표층해류 강화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
             elif current_choice == "약해짐":
-                st.info(" **[미션2] 무역풍/표층해류 약화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
+                st.info(" **[미션2-2] 무역풍/표층해류 약화에 따라 🚩동태평양 페루연안🚩에 연쇄적으로 발생하는 변화는?**")
 
-            # 테이블 출력
             labels = ["용승", "표층 수온", "기온", "기압", "기후"]
             default_options = ["선택", "증가", "감소"]
             climate_options = ["선택", "더 건조해짐", "강수량 증가"]
@@ -123,7 +112,6 @@ if st.session_state.is_correct is True:
                     opt = climate_options if labels[i] == "기후" else default_options
                     selections[labels[i]] = st.selectbox(label="", options=opt, key=f"{wind_choice}_{current_choice}_{labels[i]}_sel")
 
-            # --- 결과 판별 로직 ---
             if wind_choice == "강해짐" and current_choice == "강해짐":
                 expected = {"용승": "증가", "표층 수온": "감소", "기온": "감소", "기압": "증가", "기후": "더 건조해짐"}
                 match = all(selections[k] == v for k, v in expected.items())
@@ -131,7 +119,8 @@ if st.session_state.is_correct is True:
                     st.error("⚠ **라니냐 발생 😱😱😱**")
                     lanina_img = Image.open("./data/lanina.png")
                     st.image(lanina_img, caption="라니냐 발생 시 남태평양 해역 변화", width=700)
-                    st.markdown("### [미션3] 라니냐에 대해 GPT🦸‍♂에게 질문해보세요!")
+                    st.info(" **[미션3] 라니냐에 대해 GPT🦸‍♂에게 질문해보세요!**")
+
 
             elif wind_choice == "약해짐" and current_choice == "약해짐":
                 expected = {"용승": "감소", "표층 수온": "증가", "기온": "증가", "기압": "감소", "기후": "강수량 증가"}
@@ -140,12 +129,11 @@ if st.session_state.is_correct is True:
                     st.error("⚠ 엘니뇨 발생!!!")
                     elnino_img = Image.open("./data/elnino.png")
                     st.image(elnino_img, caption="엘니뇨 발생 시 남태평양 해역 변화", width=700)
-                    st.markdown("### [미션3] 엘니뇨에 대해 GPT🦸‍♂에게 질문해보세요!")
+                    st.info(" **[미션3] 엘니뇨에 대해 GPT🦸‍♂에게 질문해보세요!**")
+
             else:
                 st.warning("❗다시 생각해보세요❗")
 
-
-            # GPT 챗봇 공통 블록 (3회 대화 종료 + txt 저장 포함)
             if api_key:
                 if st.session_state.chat_ended:
                     st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
@@ -155,29 +143,53 @@ if st.session_state.is_correct is True:
                     txt_data = buffer.getvalue().encode("utf-8")
                     st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
                     st.stop()
+                    
 
-                user_question = st.text_input("💬 질문을 입력하세요:")
-                if user_question:
-                    client = openai.OpenAI(api_key=api_key)
-                    with st.spinner("GPT가 생각 중입니다..."):
-                        try:
-                            response = client.chat.completions.create(
-                                model="gpt-3.5-turbo",
-                                messages=[
-                                    {"role": "system", "content": "당신은 고등학생을 위한 기후 과학 설명 전문가입니다."},
-                                    {"role": "user", "content": user_question}
-                                ]
-                            )
-                            answer = response.choices[0].message.content
-                            st.success("🤖 GPT의 답변:")
-                            st.write(answer)
+# ⚠ GPT와의 대화
+if api_key and match:
+    if not st.session_state.chat_ended:
+        user_question = st.text_input("💬 질문을 입력하세요:")
+        if user_question:
+            client = openai.OpenAI(api_key=api_key)
+            with st.spinner("GPT가 생각 중입니다..."):
+                try:
+                    response = client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[
+                            {"role": "system", "content": "당신은 고등학생을 위한 기후 과학 설명 전문가입니다."},
+                            {"role": "user", "content": user_question}
+                        ]
+                    )
+                    answer = response.choices[0].message.content
+                    st.success("🤖 GPT의 답변:")
+                    st.write(answer)
 
-                            st.session_state.chat_log.append({"질문": user_question, "답변": answer})
-                            st.session_state.chat_count += 1
-                            if st.session_state.chat_count >= 3:
-                                st.session_state.chat_ended = True
+                    st.session_state.chat_log.append({"질문": user_question, "답변": answer})
+                    st.session_state.chat_count += 1
+                    if st.session_state.chat_count >= 3:
+                        st.session_state.chat_ended = True
+                except Exception as e:
+                    st.error(f"⚠ 에러 발생:\n\n{e}")
+    else:
+        st.warning("✅ GPT와의 대화가 종료되었습니다 (총 3회 진행됨)")
 
-                        except Exception as e:
-                            st.error(f"⚠ 에러 발생:\n\n{e}")
+        buffer = io.StringIO()
+        for i, entry in enumerate(st.session_state.chat_log):
+            buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
+        txt_data = buffer.getvalue().encode("utf-8")
+        st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
+
+        # 👉 챗봇과 추가 학습하러 가기 버튼
+        st.markdown("""
+            <div style='text-align: center; margin-top: 20px;'>
+                <a href='https://chatgpt.com/g/g-688366dc3ee081919a9e7fd6b4a02c66-enso-seolmyeonggi' target='_blank'>
+                    <button style='background-color:#5b9bd5; color:white; padding:10px 20px; font-size:16px; border:none; border-radius:5px;'>
+                        ☞ 챗봇과 추가 학습하러 가기
+                    </button>
+                </a>
+            </div>
+        """, unsafe_allow_html=True)
+
+
 elif st.session_state.is_correct is False:
     st.warning("❗다시 생각해보세요❗")
