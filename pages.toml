@@ -1,0 +1,5 @@
+# .streamlit/pages.toml
+[[pages]]
+path = "streamlit_app.py"
+name = "HOME"
+icon = "🏠"
