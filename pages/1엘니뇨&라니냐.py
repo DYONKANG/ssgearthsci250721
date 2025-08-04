@@ -130,7 +130,7 @@ if api_key and st.session_state.match:
                     st.write(answer)
                     st.session_state.chat_log.append({"질문": user_question, "답변": answer})
                     st.session_state.chat_count += 1
-                    if st.session_state.chat_count >= 3:
+                    if st.session_state.chat_count == 3:
                         st.session_state.chat_ended = True
                 except Exception as e:
                     st.error(f"⚠ 에러 발생:\n\n{e}")
@@ -148,7 +148,7 @@ if api_key and st.session_state.match:
         <div style='text-align: center; margin-top: 20px;'>
             <a href='https://chatgpt.com/g/g-688366dc3ee081919a9e7fd6b4a02c66-enso-seolmyeonggi' target='_blank'>
                 <button style='background-color:#5b9bd5; color:white; padding:10px 20px; font-size:16px; border:none; border-radius:5px;'>
-                    ☞ 챗봇과 추가 학습하러 가기😊👍
+                    챗봇과 추가 학습하러 가기😊👍
                 </button>
             </a>
         </div>
