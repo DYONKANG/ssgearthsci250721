@@ -36,11 +36,11 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 # 이미지
 img = Image.open("./data/normal.png")
 st.image(img, caption="남태평양의 대기와 해양(평상시)", width=580)
-st.info(" **🔷미션1🔷 위의 그림을 참고하여 남태평양 대기와 해양의 특징을 파악해봅시다.**")
+st.info(" **🔷미션1🔷 위의 그림을 통해 파악한 남태평양 대기와 해양의 특징은?**")
 
 # 탐구 결과 입력
 with st.expander("💬 탐구 결과 입력하기"):
-    st.markdown("##### 아래 질문에 답해보세요:")
+    st.markdown("###### 아래 질문에 답해보세요😊")
     ans1 = st.text_input("1) 남태평양에 영향을 주는, 대기 대순환에 의해 발생한 지상풍의 명칭은? (5글자)", key="q1")
     ans2 = st.text_input("2) 서태평양을 향해 흐르는 표층 해류의 발생 원인은? (5글자)", key="q2")
     ans3 = st.text_input("3) 평상 시 동태평양(페루 연안)은 서태평양(호주)에 비해 표층 수온이 낮다. 그 원인은? (2글자)", key="q3")
@@ -55,13 +55,13 @@ with st.expander("💬 탐구 결과 입력하기"):
 # 미션2
 if st.session_state.is_correct:
     st.success("🎉 정답입니다! **미션2**로 넘어가세요.")
-    st.info(" **🔷미션2-1🔷 기후 변화로 인해 무역풍의 강도가 달라지면?**")
+    st.info(" **🔷미션2-1🔷 기후 변화로 인해 무역풍의 강도가 달라지게 된다면?**")
     wind_choice = st.selectbox("💨무역풍 강도 변화", ["선택", "강해짐", "약해짐"])
     if wind_choice in ["강해짐", "약해짐"]:
         current_choice = st.selectbox("🌊표층 해류 강도 변화", ["선택", "강해짐", "약해짐"])
 
         if (wind_choice, current_choice) in [("강해짐", "강해짐"), ("약해짐", "약해짐")]:
-            st.info("**🔷미션2-2🔷 동태평양 페루연안의 연쇄적 변화 탐색**")
+            st.info("**🔷미션2-2🔷 이후 이어질 동태평양(페루연안)의 연쇄적 변화는?**")
             labels = ["용승", "표층 수온", "기온", "기압", "기후"]
             default_options = ["선택", "증가", "감소"]
             climate_options = ["선택", "더 건조해짐", "강수량 증가"]
@@ -93,10 +93,10 @@ if st.session_state.is_correct:
                     else:
                         st.error("**⚠️ 엘니뇨 발생!**")
                         st.image(Image.open("./data/elnino.png"), width=700)
-                    st.info("**🔷미션3🔷 엘니뇨/라니냐에 대해 GPT에게 질문해보세요!**")
+                    st.info("**🔷미션3🔷 GPT와의 대화를 통해 엘니뇨/라니냐에 대해 더 알아보자!**")
                 else:
                     st.session_state.match = False
-                    st.warning("❗ 다시 생각해보세요❗")
+                    st.warning("❗다시 생각해보세요❗")
 
             else:
                 st.session_state.match = False
@@ -139,14 +139,14 @@ if api_key and st.session_state.match:
         for i, entry in enumerate(st.session_state.chat_log):
             buffer.write(f"[질문 {i+1}]\n{entry['질문']}\n[답변 {i+1}]\n{entry['답변']}\n\n")
         txt_data = buffer.getvalue().encode("utf-8")
-        st.download_button("📄 대화 내역 TXT 다운로드", txt_data, file_name="gpt_대화기록.txt")
+        st.download_button("📄 대화 내역 다운로드", txt_data, file_name="gpt_대화기록.txt")
 
         # 추가 학습 링크
         st.markdown("""
         <div style='text-align: center; margin-top: 20px;'>
             <a href='https://chatgpt.com/g/g-688366dc3ee081919a9e7fd6b4a02c66-enso-seolmyeonggi' target='_blank'>
                 <button style='background-color:#5b9bd5; color:white; padding:10px 20px; font-size:16px; border:none; border-radius:5px;'>
-                    ☞ 챗봇과 추가 학습하러 가기
+                    ☞ 챗봇과 추가 학습하러 가기😊👍
                 </button>
             </a>
         </div>

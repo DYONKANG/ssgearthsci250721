@@ -4,6 +4,15 @@ st.set_page_config(page_title="SSG_EARTHSCI_2025", layout="centered")
 
 st.title("🎈SSG_EARTHSCIENCE_2025🎈")
 
+st.markdown(
+    """
+    <div style="text-align: right; font-size: 20px; margin-top: 30px;">
+        선사고등학교 지구과학교사 강지연
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # 한 줄 띄우기
 st.markdown("<br><br>", unsafe_allow_html=True)
 
@@ -54,7 +63,7 @@ st.markdown("""
 <table style='width:100%; border-collapse: collapse;'>
   <tr style='background-color:#d6e7ff;; font-weight:bold;'>
     <td>1차시<br>(프로젝트2)</td>
-    <td>[남방진동(ENSO) 원리 이해]<br>무역풍 강도 변화에 따라 동태평양 표층 해수의 이동 강도 - 용승 강도 - 표층 수온 - 해수면 기온 - 해수면 기압 - 날씨/강수량 순차적으로 변화하는 것을 확인할 수 있는 시뮬레이션을 설계/개발하여 학생들이 주도적으로 ‘엘니뇨’와 ‘라니냐’의 개념을 이해하는 과정을 지원한다.</td>
+    <td>[남방진동(ENSO) 원리 이해] <br>무역풍 강도 변화에 따라 '동태평양 표층 해수의 이동 강도 → 용승 강도 → 표층 수온 → 해수면 기온 → 해수면 기압 → 날씨/강수량'과 같이 연쇄적인 변화가 발생하는 것을 탐구/확인할 수 있는 시뮬레이션을 설계하여 학생들이 주도적으로 ‘엘니뇨’와 ‘라니냐’의 개념을 이해해나가는 과정<br>을 지원한다.</td>
   </tr>
   <tr>
     <td>2차시</td>
