@@ -2,7 +2,6 @@ import os
 import streamlit as st
 from PIL import Image
 import openai
-import gspread
 from google.oauth2.service_account import Credentials
 import io
 import json
