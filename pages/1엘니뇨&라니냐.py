@@ -104,6 +104,8 @@ if st.session_state.is_correct:
 
 # GPT 대화
 if api_key and st.session_state.match:
+    openai.api_key = api_key  # ✅ 이 부분으로 API 키 설정
+
     if not st.session_state.chat_ended:
         with st.expander("💡 질문 가이드"):
             st.markdown("""
@@ -114,10 +116,9 @@ if api_key and st.session_state.match:
             """)
         user_question = st.text_input("💬 질문 입력하기")
         if user_question:
-            client = openai.OpenAI(api_key=api_key)
             with st.spinner("GPT가 생각 중입니다..."):
                 try:
-                    response = client.chat.completions.create(
+                    response = openai.ChatCompletion.create(  # ✅ 여기서도 수정
                         model="gpt-3.5-turbo",
                         messages=[
                             {"role": "system", "content": "당신은 고등학생을 위한 기후 과학 설명 전문가입니다."},
@@ -133,6 +134,7 @@ if api_key and st.session_state.match:
                         st.session_state.chat_ended = True
                 except Exception as e:
                     st.error(f"⚠ 에러 발생:\n\n{e}")
+                    
     else:
         st.warning("✅ GPT와의 대화가 종료되었습니다😢")
         buffer = io.StringIO()
