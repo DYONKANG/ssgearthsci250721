@@ -27,7 +27,7 @@ if "match" not in st.session_state:
 st.markdown("""
 <h1 style="text-align: center;">
   <mark style="background-color: #e6f2ff; color: #0052cc; font-weight: bold; padding: 0.2em 0.4em; border-radius: 0.2em;">
-    🌏엘니뇨와 라니냐☀
+    🌏엘니뇨와 라니냐☀️
   </mark>
 </h1>
 """, unsafe_allow_html=True)
